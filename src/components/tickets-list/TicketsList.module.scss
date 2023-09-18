@@ -1,0 +1,16 @@
+.ticketsList {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.radioGroup {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.radioButton {
+  padding: 15px;
+}
