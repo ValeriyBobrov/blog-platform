@@ -6,7 +6,7 @@ export const fetchApiKey = createAsyncThunk('tickets/fetchApiKey', async () => {
   return data.searchId
 })
 
-export const fetchTicketsList = createAsyncThunk('tickets/fetchTicketsList', async (apiKey, { rejectWithValue }) => {
+export const fetchTicketsList = createAsyncThunk('tickets/fetchTicketsList', async (apiKey) => {
   try {
     const response = await fetch(`https://aviasales-test-api.kata.academy/tickets?searchId=${apiKey}`)
 
@@ -18,7 +18,15 @@ export const fetchTicketsList = createAsyncThunk('tickets/fetchTicketsList', asy
 
     return data
   } catch (err) {
-    return rejectWithValue(err.message)
+    const response = await fetch(`https://aviasales-test-api.kata.academy/tickets?searchId=${apiKey}`)
+
+    if (!response.ok) {
+      throw new Error('HTTP Error')
+    }
+
+    const data = await response.json()
+
+    return data
   }
 })
 
@@ -38,6 +46,28 @@ const initialState = {
     cheapest: false,
     faster: false,
   },
+  checkboxData: [
+    {
+      name: 'all',
+      label: 'Все',
+    },
+    {
+      name: 'noTrans',
+      label: 'Без пересадок',
+    },
+    {
+      name: 'oneTrans',
+      label: '1 пересадка',
+    },
+    {
+      name: 'twoTrans',
+      label: '2 пересадки',
+    },
+    {
+      name: 'threeTrans',
+      label: '3 пересадки',
+    },
+  ],
 }
 
 const ticketsSlice = createSlice({
