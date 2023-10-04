@@ -1,1 +1,1 @@
-https://aviasales-omega-one.vercel.app/
+https://blog-three-weld-67.vercel.app/
