@@ -1,0 +1,22 @@
+.container {
+  width: 940px;
+  min-height: 400px;
+  margin: 24px auto;
+  background: var(--background-color-base, #fff);
+  border-radius: 5px;
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.article {
+  padding: 20px;
+}
+
+.article-form-button-edit {
+  width: 80px;
+  border-radius: 4px;
+  border: 1px solid var(--info-color, #1890ff);
+  padding: 8px 16px;
+  margin-left: 5px;
+}

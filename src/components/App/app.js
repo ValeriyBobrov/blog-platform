@@ -1,25 +1,43 @@
-import React from 'react'
-import { Provider } from 'react-redux'
+import React, { useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 
-import store from '../../store'
-import FilterList from '../filter-list'
-import TicketsList from '../tickets-list'
-import logo from '../../img/Logo.svg'
+import { fetchPostData, loginUser } from '../../store/blogSlice'
+import ArticleList from '../article-list'
+import SignInPage from '../sign-in-page'
+import SignUpPage from '../sign-up-page/sign-up-page'
+import Layout from '../layout/layout'
+import ArticleItem from '../article-item/article-item'
+import Profile from '../profile'
+import NewArticle from '../new-article'
+import EditArticle from '../edit-article'
 
-import styles from './App.module.scss'
+export default function App() {
+  const dispatch = useDispatch()
+  const currentPage = useSelector((state) => state.blog.currentPage)
 
-function App() {
+  useEffect(() => {
+    dispatch(fetchPostData(currentPage))
+  }, [dispatch, currentPage])
+
+  useEffect(() => {
+    if (sessionStorage.getItem('userData')) {
+      const userData = sessionStorage.getItem('userData')
+      dispatch(loginUser(JSON.parse(userData)))
+    }
+  })
+
   return (
-    <Provider store={store}>
-      <div className={styles.main}>
-        <img className={styles.logo} src={logo} alt="logo" />
-        <div className={styles.wrapper}>
-          <FilterList />
-          <TicketsList />
-        </div>
-      </div>
-    </Provider>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<ArticleList />} />
+        <Route path="article/:slug" element={<ArticleItem />} />
+        <Route path="article/:slug/edit" element={<EditArticle />} />
+        <Route path="signin" element={<SignInPage />} />
+        <Route path="signup" element={<SignUpPage />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="new-article" element={<NewArticle />} />
+      </Route>
+    </Routes>
   )
 }
-
-export default App

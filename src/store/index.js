@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import filtersReduser from './ticketsSlice'
+import blogReducer from './blogSlice'
 
 export default configureStore({
   reducer: {
-    filters: filtersReduser,
+    blog: blogReducer,
   },
 })
