@@ -6,12 +6,13 @@ import { format, parseISO } from 'date-fns'
 import './article-list.css'
 import { Pagination } from 'antd'
 
-import { togglePage, favoriteArticle } from '../../store/blogSlice'
+import { togglePage, favoriteArticle, fetchPostData } from '../../store/blogSlice'
 
 export default function ArticleList() {
   const articleData = useSelector((state) => state.blog.article)
   const articlesCount = useSelector((state) => state.blog.articlesCount)
   const apiKey = useSelector((state) => state.blog.token)
+  const currentPage = useSelector((state) => state.blog.currentPage)
 
   const dispatch = useDispatch()
 
@@ -35,10 +36,10 @@ export default function ArticleList() {
             <h2 className="title">{item.title}</h2>
             <button
               type="button"
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault()
-                dispatch(favoriteArticle({ apiKey, slug }))
-                console.log(slug)
+                await dispatch(favoriteArticle({ apiKey, slug }))
+                await dispatch(fetchPostData(currentPage))
               }}
             >
               {item.favoritesCount}
