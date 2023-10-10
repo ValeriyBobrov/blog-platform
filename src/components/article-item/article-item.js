@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { Spin, Popconfirm } from 'antd'
+import Markdown from 'react-markdown'
 import './article-item.css'
 
 import { fetchPostInfo, clearCurrentArticle, deleteArticle } from '../../store/blogSlice'
@@ -38,9 +39,9 @@ export default function ArticleItem() {
             <p className="title">
               {postInfo.title} {postInfo.favoritesCount}
             </p>
-            <p className="tags" /> {/* НЕ ЗАБУДЬ ДОБАВИТЬ ТЕГИ */}
+            <p className="tags" />
             <p className="description">{postInfo.description}</p>
-            <p className="body">{postInfo.body}</p>
+            <Markdown className="body">{postInfo.body}</Markdown>
           </div>
           <div className="author-card">
             {postInfo.author ? (
