@@ -257,6 +257,7 @@ const blogSlice = createSlice({
       state.isLogin = true
       state.loginStatus = 'ok'
       sessionStorage.setItem('token', action.payload.user.token)
+      sessionStorage.setItem('userData', JSON.stringify(action.payload.user))
     })
     builder.addCase(loginUser.rejected, (state) => {
       state.loginStatus = 'error'

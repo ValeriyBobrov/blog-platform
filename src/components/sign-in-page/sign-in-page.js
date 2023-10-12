@@ -30,7 +30,6 @@ export default function SignInPage() {
 
   const submitForm = (data) => {
     dispatch(loginUser(data))
-    sessionStorage.setItem('userData', JSON.stringify(data))
   }
 
   return (
