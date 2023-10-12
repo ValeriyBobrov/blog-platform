@@ -2,17 +2,25 @@ import React from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { logout } from '../../store/blogSlice'
+import { logout, fetchPostData } from '../../store/blogSlice'
 import './layout.css'
 
 export default function Layout() {
-  const { isLogin, currentUser } = useSelector((state) => state.blog)
+  const { currentUser } = useSelector((state) => state.blog)
+  let { isLogin } = useSelector((state) => state.blog)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { currentPage, token } = useSelector((state) => state.blog)
+
+  if (sessionStorage.getItem('userData')) {
+    isLogin = true
+  }
 
   const toggleLogout = () => {
     dispatch(logout())
+    dispatch(fetchPostData({ currentPage, token }))
     sessionStorage.removeItem('userData')
+    sessionStorage.removeItem('token')
     navigate('/')
   }
 

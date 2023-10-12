@@ -4,9 +4,9 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
-import { createArticle } from '../../store/blogSlice'
+import { createArticle, editArticle, clearCurrentArticle, fetchPostData } from '../../store/blogSlice'
 
 import './new-article.css'
 
@@ -18,8 +18,10 @@ const schema = yup.object().shape({
 
 export default function NewArticle() {
   const apiKey = useSelector((state) => state.blog.token)
+  const { slug } = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { currentPage } = useSelector((state) => state.blog)
 
   const {
     register,
@@ -42,7 +44,14 @@ export default function NewArticle() {
   const submitForm = (data) => {
     try {
       console.log(data)
-      dispatch(createArticle({ data, apiKey }))
+      if (slug) {
+        dispatch(editArticle({ data, apiKey, slug }))
+        dispatch(clearCurrentArticle())
+        dispatch(fetchPostData(currentPage))
+      } else {
+        dispatch(createArticle({ data, apiKey }))
+        dispatch(fetchPostData(currentPage))
+      }
       reset()
       navigate('/')
     } catch (err) {

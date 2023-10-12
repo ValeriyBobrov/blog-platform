@@ -3,8 +3,9 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Spin } from 'antd'
 
 import { loginUser } from '../../store/blogSlice'
 
@@ -17,26 +18,19 @@ const schema = yup.object().shape({
 
 export default function SignInPage() {
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const { loginStatus } = useSelector((state) => state.blog)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm({
     resolver: yupResolver(schema),
   })
 
   const submitForm = (data) => {
-    try {
-      dispatch(loginUser(data))
-      sessionStorage.setItem('userData', JSON.stringify(data))
-      reset()
-      navigate('/')
-    } catch (err) {
-      throw new Error(err.message)
-    }
+    dispatch(loginUser(data))
+    sessionStorage.setItem('userData', JSON.stringify(data))
   }
 
   return (
@@ -66,6 +60,9 @@ export default function SignInPage() {
             />
           </label>
           {errors.password && <p className="form-error">{errors.password.message}</p>}
+          {loginStatus === 'error' ? <p className="form-error">Incorrect login or password</p> : null}
+          {loginStatus === 'ok' ? <p className="form-ok">Successful login to the account</p> : null}
+          {loginStatus === 'pending' ? <Spin size="large" /> : null}
           <button type="submit" className="sign-up-form-button">
             Login
           </button>

@@ -3,8 +3,9 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { useDispatch } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { Spin } from 'antd'
 
 import { regNewUser } from '../../store/blogSlice'
 
@@ -31,28 +32,21 @@ const schema = yup.object().shape({
 })
 
 export default function SignUpPage() {
-  const navigate = useNavigate()
   const dispatch = useDispatch()
+  const { regStatus } = useSelector((state) => state.blog)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm({
     resolver: yupResolver(schema),
   })
 
   const submitForm = (data) => {
-    try {
-      console.log(data)
-      dispatch(regNewUser(data))
-      sessionStorage.setItem('userData', JSON.stringify(data))
-      reset()
-      navigate('/')
-    } catch (err) {
-      throw new Error(err.message)
-    }
+    console.log(data)
+    dispatch(regNewUser(data))
+    sessionStorage.setItem('userData', JSON.stringify(data))
   }
 
   return (
@@ -112,6 +106,9 @@ export default function SignUpPage() {
             personal information
           </label>
           {errors.personalInfo && <p className="form-error">{errors.personalInfo.message}</p>}
+          {regStatus === 'error' ? <p className="form-error">Login or email already exists</p> : null}
+          {regStatus === 'ok' ? <p className="form-ok">Successful login to the account</p> : null}
+          {regStatus === 'pending' ? <Spin size="large" /> : null}
           <button type="submit" className="sign-up-form-button">
             Create
           </button>

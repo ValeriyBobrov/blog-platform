@@ -9,8 +9,8 @@ import './article-item.css'
 import { fetchPostInfo, clearCurrentArticle, deleteArticle } from '../../store/blogSlice'
 
 export default function ArticleItem() {
-  const postInfo = useSelector((state) => state.blog.currentArticle)
-  const apiKey = useSelector((state) => state.blog.token)
+  const { currentArticle, token, currentUser } = useSelector((state) => state.blog)
+
   const { slug } = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -26,49 +26,51 @@ export default function ArticleItem() {
   }
 
   function toggleDeleteArticle() {
-    dispatch(deleteArticle({ apiKey, slug }))
+    dispatch(deleteArticle({ token, slug }))
     dispatch(clearCurrentArticle())
     navigate('/')
   }
 
   return (
     <div className="container">
-      {postInfo ? (
+      {currentArticle ? (
         <>
           <div className="article">
             <p className="title">
-              {postInfo.title} {postInfo.favoritesCount}
+              {currentArticle.title} {currentArticle.favoritesCount}
             </p>
             <p className="tags" />
-            <p className="description">{postInfo.description}</p>
-            <Markdown className="body">{postInfo.body}</Markdown>
+            <p className="description">{currentArticle.description}</p>
+            <Markdown className="body">{currentArticle.body}</Markdown>
           </div>
           <div className="author-card">
-            {postInfo.author ? (
+            {currentArticle.author ? (
               <>
                 <div className="author-description">
-                  <p className="author-name">{postInfo.author.username}</p>
-                  <p className="author-date">{formatDate(postInfo.createdAt)}</p>
+                  <p className="author-name">{currentArticle.author.username}</p>
+                  <p className="author-date">{formatDate(currentArticle.createdAt)}</p>
                 </div>
-                <img src={postInfo.author.image} alt="profile" className="author-img" />
-                <div className="button-container">
-                  <Popconfirm
-                    title="Delete"
-                    description="Are you sure to delete this article?"
-                    okText="Yes"
-                    cancelText="No"
-                    onConfirm={() => toggleDeleteArticle(slug, apiKey)}
-                  >
-                    <button type="button" className="article-form-button-delete">
-                      Delete
-                    </button>
-                  </Popconfirm>
-                  <Link to="edit">
-                    <button type="button" className="article-form-button-edit">
-                      Edit
-                    </button>
-                  </Link>
-                </div>
+                <img src={currentArticle.author.image} alt="profile" className="author-img" />
+                {currentArticle.author.username === currentUser.username ? (
+                  <div className="button-container">
+                    <Popconfirm
+                      title="Delete"
+                      description="Are you sure to delete this article?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => toggleDeleteArticle(slug, token)}
+                    >
+                      <button type="button" className="article-form-button-delete">
+                        Delete
+                      </button>
+                    </Popconfirm>
+                    <Link to="edit">
+                      <button type="button" className="article-form-button-edit">
+                        Edit
+                      </button>
+                    </Link>
+                  </div>
+                ) : null}
               </>
             ) : (
               <Spin />

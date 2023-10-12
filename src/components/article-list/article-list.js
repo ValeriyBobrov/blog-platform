@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import uniqid from 'uniqid'
@@ -6,15 +6,25 @@ import { format, parseISO } from 'date-fns'
 import './article-list.css'
 import { Pagination, Tag } from 'antd'
 
-import { togglePage, favoriteArticle, fetchPostData } from '../../store/blogSlice'
+import { togglePage, favoriteArticle, fetchPostData, loginUser } from '../../store/blogSlice'
 
 export default function ArticleList() {
   const articleData = useSelector((state) => state.blog.article)
   const articlesCount = useSelector((state) => state.blog.articlesCount)
   const apiKey = useSelector((state) => state.blog.token)
-  const currentPage = useSelector((state) => state.blog.currentPage)
+  const { currentPage, token } = useSelector((state) => state.blog)
 
   const dispatch = useDispatch()
+  useEffect(() => {
+    if (sessionStorage.getItem('userData')) {
+      const userData = sessionStorage.getItem('userData')
+      dispatch(loginUser(JSON.parse(userData)))
+    }
+  }, [])
+
+  useEffect(() => {
+    dispatch(fetchPostData({ currentPage, token }))
+  }, [dispatch, currentPage])
 
   const handlePageChange = (page) => {
     dispatch(togglePage(page))

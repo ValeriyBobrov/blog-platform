@@ -1,7 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-export const fetchPostData = createAsyncThunk('blog/fetchPostData', async (page) => {
-  const response = await fetch(`https://blog.kata.academy/api/articles?offset=${page * 20 - 20}`)
+export const fetchPostData = createAsyncThunk('blog/fetchPostData', async (pageInfo) => {
+  let { token } = pageInfo
+  const { currentPage } = pageInfo
+  let option = null
+  if (sessionStorage.getItem('token')) {
+    token = sessionStorage.getItem('token')
+  }
+  if (token) {
+    option = {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    }
+  }
+  const response = await fetch(`https://blog.kata.academy/api/articles?offset=${currentPage * 20 - 20}`, option)
   const data = await response.json()
   console.log(data)
   return data
@@ -14,7 +27,7 @@ export const fetchPostInfo = createAsyncThunk('blog/fetchPostInfo', async (slug)
   return data
 })
 
-export const regNewUser = createAsyncThunk('blog/regNewUser', async (userInfo) => {
+export const regNewUser = createAsyncThunk('blog/regNewUser', async (userInfo, { rejectWithValue }) => {
   const option = {
     method: 'POST',
     headers: {
@@ -28,16 +41,22 @@ export const regNewUser = createAsyncThunk('blog/regNewUser', async (userInfo) =
       },
     }),
   }
+  try {
+    const response = await fetch('https://blog.kata.academy/api/users', option)
+    if (!response.ok) {
+      throw new Error('Error')
+    }
+    const data = await response.json()
 
-  const response = await fetch('https://blog.kata.academy/api/users', option)
-  const data = await response.json()
+    console.log(data)
 
-  console.log(data)
-
-  return data
+    return data
+  } catch (err) {
+    return rejectWithValue(err.message)
+  }
 })
 
-export const loginUser = createAsyncThunk('blog/loginUser', async (userInfo) => {
+export const loginUser = createAsyncThunk('blog/loginUser', async (userInfo, { rejectWithValue }) => {
   const option = {
     method: 'POST',
     headers: {
@@ -50,13 +69,18 @@ export const loginUser = createAsyncThunk('blog/loginUser', async (userInfo) => 
       },
     }),
   }
+  try {
+    const response = await fetch('https://blog.kata.academy/api/users/login', option)
+    if (!response.ok) {
+      throw new Error('Login error')
+    }
+    const data = await response.json()
 
-  const response = await fetch('https://blog.kata.academy/api/users/login', option)
-  const data = await response.json()
-
-  console.log(data)
-
-  return data
+    console.log(data)
+    return data
+  } catch (err) {
+    return rejectWithValue(err.message)
+  }
 })
 
 export const updateCurrentUser = createAsyncThunk('blog/updateCurrentUser', async (userData) => {
@@ -184,6 +208,8 @@ const initialState = {
   token: '',
   isLogin: false,
   currentUser: {},
+  loginStatus: '',
+  regStatus: '',
 }
 
 const blogSlice = createSlice({
@@ -210,15 +236,30 @@ const blogSlice = createSlice({
     builder.addCase(fetchPostInfo.fulfilled, (state, action) => {
       state.currentArticle = action.payload.article
     })
+    builder.addCase(regNewUser.pending, (state) => {
+      state.regStatus = 'pending'
+    })
     builder.addCase(regNewUser.fulfilled, (state, action) => {
       state.currentUser = action.payload.user
       state.token = action.payload.user.token
       state.isLogin = true
+      state.regStatus = 'ok'
+    })
+    builder.addCase(regNewUser.rejected, (state) => {
+      state.regStatus = 'error'
+    })
+    builder.addCase(loginUser.pending, (state) => {
+      state.loginStatus = 'pending'
     })
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.currentUser = action.payload.user
       state.token = action.payload.user.token
       state.isLogin = true
+      state.loginStatus = 'ok'
+      sessionStorage.setItem('token', action.payload.user.token)
+    })
+    builder.addCase(loginUser.rejected, (state) => {
+      state.loginStatus = 'error'
     })
     builder.addCase(updateCurrentUser.fulfilled, (state, action) => {
       state.currentUser = action.payload.user
